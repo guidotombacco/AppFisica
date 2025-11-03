@@ -6,7 +6,6 @@ on:
 jobs:
   build-debug:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,24 +26,34 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # 👇 Paso de diagnóstico: confirma dónde estás parado y que exista el lockfile
-      - name: Verify lockfile and working directory
+      - name: Verify lockfile and scripts
         run: |
           echo "PWD: $(pwd)"
           ls -la
-          test -f package-lock.json || { echo "ERROR: falta package-lock.json en $(pwd)"; exit 1; }
+          test -f package-lock.json || { echo "ERROR: falta package-lock.json"; exit 1; }
+          node -v && npm -v
+          node -e "const p=require('./package.json'); console.log('scripts:', p.scripts)"
 
       - name: Install deps & build web
         run: |
           npm ci
           npm run build
 
-      - name: Add Android platform (Capacitor)
+      # Usa A ó B (elige una)
+      # Opción A: si @capacitor/cli está en package.json (recomendada)
+      - name: Capacitor add/sync (local CLI)
+        if: always()
         run: |
+          npx cap --version
           npx cap add android --skip-android-studio || true
           npx cap sync android
 
-      # 👇 Asegura permisos del wrapper de Gradle
+      # Opción B: si NO está en package.json, forzá el paquete:
+      # - name: Capacitor add/sync (force package)
+      #   run: |
+      #     npx --yes @capacitor/cli cap add android --skip-android-studio || true
+      #     npx --yes @capacitor/cli cap sync android
+
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
