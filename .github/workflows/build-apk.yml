@@ -58,15 +58,20 @@ jobs:
       #     npx --yes @capacitor/cli cap add android --skip-android-studio || true
       #     npx --yes @capacitor/cli cap sync android
 
+      - name: Setup Java (for Gradle)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
       - name: Make gradlew executable
         run: chmod +x android/gradlew
+
+      - name: Show Gradle/JDK versions
+        working-directory: android
+        run: ./gradlew -version
 
       - name: Build APK (debug)
         working-directory: android
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug.apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
