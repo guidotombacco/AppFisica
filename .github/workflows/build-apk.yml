@@ -43,13 +43,14 @@ jobs:
       # Opción A: si @capacitor/cli está en package.json (recomendada)
       - name: Ensure Android platform (Capacitor)
         run: |
-          npx --yes @capacitor/cli cap --version
+          npx --yes @capacitor/cli --version
           if [ -d android ]; then
             echo "Android platform already exists."
           else
-            npx --yes @capacitor/cli cap add android
+            npx --yes @capacitor/cli add android
           fi
-          npx --yes @capacitor/cli cap sync android
+          npx --yes @capacitor/cli sync android
+
 
       # Opción B: si NO está en package.json, forzá el paquete:
       # - name: Capacitor add/sync (force package)
