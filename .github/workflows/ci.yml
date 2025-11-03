@@ -1,0 +1,33 @@
+# .github/workflows/ci.yml (ejemplo)
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ 
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node 20 (npm 10)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          # Si tu package.json está en subcarpeta:
+          # cache-dependency-path: app/package-lock.json
+
+      - name: Check lockfile exists
+        run: |
+          test -f package-lock.json || { echo "ERROR: falta package-lock.json en este directorio"; ls -la; exit 1; }
+
+      - name: Install deps (CI)
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test -- --ci
